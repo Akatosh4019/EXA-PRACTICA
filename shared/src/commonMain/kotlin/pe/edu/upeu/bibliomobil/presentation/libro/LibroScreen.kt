@@ -61,11 +61,14 @@ fun LibroScreen(viewModel: LibroViewModel, modifier: Modifier = Modifier) {
                 EstadoCargando()
             }
             LibroFase.SinLibros -> item {
-                EstadoVacio(
-                    icono = Icons.AutoMirrored.Filled.MenuBook,
-                    titulo = "Sin libros",
-                    descripcion = "Aún no hay libros registrados",
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("0 libros", style = MaterialTheme.typography.titleLarge)
+                    EstadoVacio(
+                        icono = Icons.AutoMirrored.Filled.MenuBook,
+                        titulo = "Sin libros",
+                        descripcion = "Aún no hay libros registrados",
+                    )
+                }
             }
             is LibroFase.ConLibros -> {
                 item {

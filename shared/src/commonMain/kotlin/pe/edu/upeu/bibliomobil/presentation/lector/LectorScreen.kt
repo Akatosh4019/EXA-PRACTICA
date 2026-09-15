@@ -57,11 +57,14 @@ fun LectorScreen(viewModel: LectorViewModel, modifier: Modifier = Modifier) {
         when (val fase = estado.fase) {
             LectorFase.Cargando -> item { EstadoCargandoLectores() }
             LectorFase.SinLectores -> item {
-                EstadoVacio(
-                    icono = Icons.Default.People,
-                    titulo = "Sin lectores",
-                    descripcion = "Aún no hay lectores registrados",
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("0 lectores", style = MaterialTheme.typography.titleLarge)
+                    EstadoVacio(
+                        icono = Icons.Default.People,
+                        titulo = "Sin lectores",
+                        descripcion = "Aún no hay lectores registrados",
+                    )
+                }
             }
             is LectorFase.ConLectores -> {
                 item {
