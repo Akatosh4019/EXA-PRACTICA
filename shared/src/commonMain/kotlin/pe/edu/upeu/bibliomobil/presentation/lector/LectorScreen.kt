@@ -8,11 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,6 +22,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import pe.edu.upeu.bibliomobil.presentation.components.EstadoVacio
+import pe.edu.upeu.bibliomobil.presentation.components.MensajeExito
+import pe.edu.upeu.bibliomobil.presentation.components.ValidatedTextField
 
 @Composable
 fun LectorScreen(viewModel: LectorViewModel, modifier: Modifier = Modifier) {
@@ -48,15 +52,16 @@ fun LectorScreen(viewModel: LectorViewModel, modifier: Modifier = Modifier) {
             )
         }
         estado.mensajeExito?.let { mensaje ->
-            item { Text(mensaje, color = MaterialTheme.colorScheme.primary) }
+            item { MensajeExito(mensaje) }
         }
         when (val fase = estado.fase) {
             LectorFase.Cargando -> item { EstadoCargandoLectores() }
             LectorFase.SinLectores -> item {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("0 lectores", style = MaterialTheme.typography.titleLarge)
-                    Text("Aún no hay lectores registrados")
-                }
+                EstadoVacio(
+                    icono = Icons.Default.People,
+                    titulo = "Sin lectores",
+                    descripcion = "Aún no hay lectores registrados",
+                )
             }
             is LectorFase.ConLectores -> {
                 item {
@@ -67,8 +72,16 @@ fun LectorScreen(viewModel: LectorViewModel, modifier: Modifier = Modifier) {
                 }
             }
             is LectorFase.Error -> item {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(fase.mensaje, color = MaterialTheme.colorScheme.error)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    EstadoVacio(
+                        icono = Icons.Default.People,
+                        titulo = "No se pudo cargar",
+                        descripcion = fase.mensaje,
+                        color = MaterialTheme.colorScheme.error,
+                    )
                     Button(onClick = viewModel::cargarLectores) { Text("Reintentar") }
                 }
             }
@@ -130,14 +143,12 @@ private fun CampoLector(
     onValueChange: (String) -> Unit,
     keyboardType: KeyboardType = KeyboardType.Text,
 ) {
-    OutlinedTextField(
+    ValidatedTextField(
         value = valor,
         onValueChange = onValueChange,
-        label = { Text(etiqueta) },
-        isError = error != null,
-        supportingText = error?.let { mensaje -> ({ Text(mensaje) }) },
+        label = etiqueta,
+        error = error,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        singleLine = true,
         modifier = Modifier.fillMaxWidth(),
     )
 }

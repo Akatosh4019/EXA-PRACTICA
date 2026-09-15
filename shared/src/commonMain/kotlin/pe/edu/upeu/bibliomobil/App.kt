@@ -2,8 +2,11 @@ package pe.edu.upeu.bibliomobil
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Bookmark
@@ -18,6 +21,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
@@ -28,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -59,7 +64,8 @@ val DESTINOS = listOf(
 @Composable
 fun App() {
     KoinContext {
-        BiblioMobilTheme {
+        var darkTheme by rememberSaveable { mutableStateOf(false) }
+        BiblioMobilTheme(darkTheme = darkTheme) {
             var pantallaActual by rememberSaveable(stateSaver = Screen.Saver) {
                 mutableStateOf<Screen>(Screen.Inicio)
             }
@@ -72,6 +78,8 @@ fun App() {
                     ModalDrawerSheet {
                         MenuPrincipal(
                             pantallaActual = pantallaActual,
+                            darkTheme = darkTheme,
+                            onDarkThemeChange = { darkTheme = it },
                             onSeleccionar = { screen ->
                                 pantallaActual = screen
                                 scope.launch { drawerState.close() }
@@ -106,6 +114,8 @@ fun App() {
 @Composable
 private fun MenuPrincipal(
     pantallaActual: Screen,
+    darkTheme: Boolean,
+    onDarkThemeChange: (Boolean) -> Unit,
     onSeleccionar: (Screen) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxHeight().padding(horizontal = 12.dp)) {
@@ -117,6 +127,14 @@ private fun MenuPrincipal(
                 onClick = { onSeleccionar(destino.screen) },
                 icon = { Icon(destino.icono, contentDescription = null) },
             )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("Modo oscuro", modifier = Modifier.weight(1f))
+            Switch(checked = darkTheme, onCheckedChange = onDarkThemeChange)
         }
     }
 }

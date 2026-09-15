@@ -9,11 +9,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -22,6 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import pe.edu.upeu.bibliomobil.presentation.components.EstadoVacio
+import pe.edu.upeu.bibliomobil.presentation.components.MensajeExito
+import pe.edu.upeu.bibliomobil.presentation.components.ValidatedTextField
 
 @Composable
 fun LibroScreen(viewModel: LibroViewModel, modifier: Modifier = Modifier) {
@@ -50,17 +54,18 @@ fun LibroScreen(viewModel: LibroViewModel, modifier: Modifier = Modifier) {
             )
         }
         estado.mensajeExito?.let { mensaje ->
-            item { Text(mensaje, color = MaterialTheme.colorScheme.primary) }
+            item { MensajeExito(mensaje) }
         }
         when (val fase = estado.fase) {
             LibroFase.Cargando -> item {
                 EstadoCargando()
             }
             LibroFase.SinLibros -> item {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("0 libros", style = MaterialTheme.typography.titleLarge)
-                    Text("Aún no hay libros registrados")
-                }
+                EstadoVacio(
+                    icono = Icons.AutoMirrored.Filled.MenuBook,
+                    titulo = "Sin libros",
+                    descripcion = "Aún no hay libros registrados",
+                )
             }
             is LibroFase.ConLibros -> {
                 item {
@@ -71,8 +76,16 @@ fun LibroScreen(viewModel: LibroViewModel, modifier: Modifier = Modifier) {
                 }
             }
             is LibroFase.Error -> item {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(fase.mensaje, color = MaterialTheme.colorScheme.error)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    EstadoVacio(
+                        icono = Icons.AutoMirrored.Filled.MenuBook,
+                        titulo = "No se pudo cargar",
+                        descripcion = fase.mensaje,
+                        color = MaterialTheme.colorScheme.error,
+                    )
                     Button(onClick = viewModel::cargarLibros) { Text("Reintentar") }
                 }
             }
@@ -139,16 +152,14 @@ private fun CampoLibro(
     modifier: Modifier = Modifier,
     numerico: Boolean = false,
 ) {
-    OutlinedTextField(
+    ValidatedTextField(
         value = valor,
         onValueChange = onValueChange,
-        label = { Text(etiqueta) },
-        isError = error != null,
-        supportingText = error?.let { mensaje -> ({ Text(mensaje) }) },
+        label = etiqueta,
+        error = error,
         keyboardOptions = KeyboardOptions(
             keyboardType = if (numerico) KeyboardType.Number else KeyboardType.Text,
         ),
-        singleLine = true,
         modifier = modifier.fillMaxWidth(),
     )
 }
